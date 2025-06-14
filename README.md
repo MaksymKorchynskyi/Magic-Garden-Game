@@ -1,1 +1,1 @@
-# Magic-Garden-Game
+# Magic-Garden Game (FastAPI + React)
