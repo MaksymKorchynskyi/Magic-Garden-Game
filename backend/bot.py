@@ -4,8 +4,8 @@ from aiogram.types import Message, ReplyKeyboardMarkup, KeyboardButton, WebAppIn
 from aiogram import F
 
 # Налаштування бота (замініть на свої значення)
-BOT_TOKEN = '7932866352:AAEh6ylEILPbN3uTAS7sAorhNdl8rfMEkOo'
-WEBAPP_URL = 'https://f86b-45-89-90-223.ngrok-free.app'
+BOT_TOKEN = ''
+WEBAPP_URL = ''
 
 # Ініціалізація бота
 bot = Bot(token=BOT_TOKEN)
