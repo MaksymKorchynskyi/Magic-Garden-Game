@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyc
+
+# Virtual environment
+venv/
+.env
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node (якщо frontend — це React/Vite/тощо)
+node_modules/
+dist/
+build/
+
+# Logs
+*.log
+
+# Ignore IDE configs
+.idea/
+
+# Ignore any .env files
+*.env
