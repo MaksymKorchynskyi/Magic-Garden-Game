@@ -9,7 +9,9 @@ import gmailIcon from './assets/images/gmail-icon.png';
 import metamaskIcon from './assets/images/metamask-icon.png';
 import defaultAvatar from './assets/images/avatar_default.png';
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = window.location.hostname === 'localhost' 
+  ? 'http://localhost:8000' 
+  : 'https://magic-garden-game-production.up.railway.app/'; 
 
 function App() {
   const [showGame, setShowGame] = useState(false);
