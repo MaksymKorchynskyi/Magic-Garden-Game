@@ -14,35 +14,35 @@ const ShopMagic = ({ userData, apiBaseUrl, onBuyPlant, isLoading, onClose }) => 
         { id: 6, name: "Dark Orchid", price: 350, image: "/static/moon_flower_v1.png", grow_time: 120, reward: 3500, exp: 120 },
     ];
 
-   const filteredPlants = useMemo(() => {
-        let result = [...availablePlants];
-        
-        // Apply search filter
-        if (searchTerm) {
-            const term = searchTerm.toLowerCase();
-            result = result.filter(plant => 
-                plant.name.toLowerCase().includes(term)
-            );
-        }
-        
-        // Apply sorting
-        switch (sortBy) {
-            case 'price_asc':
-                return result.sort((a, b) => a.price - b.price);
-            case 'price_desc':
-                return result.sort((a, b) => b.price - a.price);
-            case 'time_asc':
-                return result.sort((a, b) => a.grow_time - b.grow_time);
-            case 'time_desc':
-                return result.sort((a, b) => b.grow_time - a.grow_time);
-            case 'reward_asc':
-                return result.sort((a, b) => a.reward - b.reward);
-            case 'reward_desc':
-                return result.sort((a, b) => b.reward - a.reward);
-            default:
-                return result;
-        }
-    }, [searchTerm, sortBy]);
+const filteredPlants = useMemo(() => {
+    let result = [...availablePlants];
+    
+    // Apply search filter
+    if (searchTerm) {
+        const term = searchTerm.toLowerCase();
+        result = result.filter(plant => 
+            plant.name.toLowerCase().includes(term)
+        );
+    }
+    
+    // Apply sorting
+    switch (sortBy) {
+        case 'price_asc':
+            return result.sort((a, b) => a.price - b.price);
+        case 'price_desc':
+            return result.sort((a, b) => b.price - a.price);
+        case 'time_asc':
+            return result.sort((a, b) => a.grow_time - b.grow_time);
+        case 'time_desc':
+            return result.sort((a, b) => b.grow_time - a.grow_time);
+        case 'reward_asc':
+            return result.sort((a, b) => a.reward - b.reward);
+        case 'reward_desc':
+            return result.sort((a, b) => b.reward - a.reward);
+        default:
+            return result;
+    }
+}, [searchTerm, sortBy, availablePlants]); // Додано availablePlants до залежностей
 
     return (
         <div style={styles.shopContainer}>
