@@ -5,44 +5,36 @@ const ShopMagic = ({ userData, apiBaseUrl, onBuyPlant, isLoading, onClose }) => 
     const [searchTerm, setSearchTerm] = useState('');
     const [sortBy, setSortBy] = useState('default');
     
-    const availablePlants = [
+    // Переносимо масив всередину useMemo або використовуємо useMemo для нього
+    const availablePlants = useMemo(() => [
         { id: 1, name: "Magic Rose", price: 100, image: "/static/red_rose_magic_v2.png", grow_time: 30, reward: 1000, exp: 20 },
         { id: 2, name: "Magic Mushroom", price: 150, image: "/static/mushroom_blue_magic.png", grow_time: 45, reward: 1500, exp: 35 },
         { id: 3, name: "Moon Flower", price: 200, image: "/static/starlight_flower_v2.png", grow_time: 60, reward: 2000, exp: 50 },
         { id: 4, name: "Giant Pumpkin", price: 250, image: "/static/garbus_image.png", grow_time: 75, reward: 2500, exp: 70 },
         { id: 5, name: "Crystal Lily", price: 300, image: "/static/crystal_lily_v1.png", grow_time: 90, reward: 3000, exp: 90 },
         { id: 6, name: "Dark Orchid", price: 350, image: "/static/moon_flower_v1.png", grow_time: 120, reward: 3500, exp: 120 },
-    ];
+    ], []); // Порожній масив залежностей - дані ніколи не зміняться
 
-const filteredPlants = useMemo(() => {
-    let result = [...availablePlants];
-    
-    // Apply search filter
-    if (searchTerm) {
-        const term = searchTerm.toLowerCase();
-        result = result.filter(plant => 
-            plant.name.toLowerCase().includes(term)
-        );
-    }
-    
-    // Apply sorting
-    switch (sortBy) {
-        case 'price_asc':
-            return result.sort((a, b) => a.price - b.price);
-        case 'price_desc':
-            return result.sort((a, b) => b.price - a.price);
-        case 'time_asc':
-            return result.sort((a, b) => a.grow_time - b.grow_time);
-        case 'time_desc':
-            return result.sort((a, b) => b.grow_time - a.grow_time);
-        case 'reward_asc':
-            return result.sort((a, b) => a.reward - b.reward);
-        case 'reward_desc':
-            return result.sort((a, b) => b.reward - a.reward);
-        default:
-            return result;
-    }
-}, [searchTerm, sortBy, availablePlants]); // Додано availablePlants до залежностей
+    const filteredPlants = useMemo(() => {
+        let result = [...availablePlants];
+        
+        if (searchTerm) {
+            const term = searchTerm.toLowerCase();
+            result = result.filter(plant => 
+                plant.name.toLowerCase().includes(term)
+            );
+        }
+        
+        switch (sortBy) {
+            case 'price_asc': return result.sort((a, b) => a.price - b.price);
+            case 'price_desc': return result.sort((a, b) => b.price - a.price);
+            case 'time_asc': return result.sort((a, b) => a.grow_time - b.grow_time);
+            case 'time_desc': return result.sort((a, b) => b.grow_time - a.grow_time);
+            case 'reward_asc': return result.sort((a, b) => a.reward - b.reward);
+            case 'reward_desc': return result.sort((a, b) => b.reward - a.reward);
+            default: return result;
+        }
+    }, [searchTerm, sortBy, availablePlants]);
 
     return (
         <div style={styles.shopContainer}>
