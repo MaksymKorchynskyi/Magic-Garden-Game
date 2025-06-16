@@ -14,19 +14,16 @@ const ShopMagic = ({ userData, apiBaseUrl, onBuyPlant, isLoading, onClose }) => 
         { id: 6, name: "Dark Orchid", price: 350, image: "/static/moon_flower_v1.png", grow_time: 120, reward: 3500, exp: 120 },
     ];
 
-const filteredPlants = useMemo(() => {
-    let result = [...availablePlants];
-
-    if (searchTerm) {
-        const term = searchTerm.toLowerCase();
-        result = result.filter(plant => 
-            plant.name.toLowerCase().includes(term)
-        );
-    }
-
-    return result;
-}, [searchTerm, availablePlants]);
-
+   const filteredPlants = useMemo(() => {
+        let result = [...availablePlants];
+        
+        // Apply search filter
+        if (searchTerm) {
+            const term = searchTerm.toLowerCase();
+            result = result.filter(plant => 
+                plant.name.toLowerCase().includes(term)
+            );
+        }
         
         // Apply sorting
         switch (sortBy) {
