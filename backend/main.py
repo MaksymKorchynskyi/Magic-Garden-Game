@@ -19,7 +19,7 @@ app = FastAPI(title="Luthenia Game API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "https://magic-garden-game-production.up.railway.app"],
+    allow_origins=["http://localhost:3000", "https://satisfied-growth-production.up.railway.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
