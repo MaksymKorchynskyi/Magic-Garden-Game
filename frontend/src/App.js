@@ -11,7 +11,17 @@ import defaultAvatar from './assets/images/avatar_default.png';
 
 const API_BASE_URL = window.location.hostname === 'localhost' 
   ? 'http://localhost:8000' 
-  : 'https://magic-garden-game-production.up.railway.app'; 
+  : 'https://magic-garden-game-production.up.railway.app';
+
+// Створюємо інстанс axios з базовими налаштуваннями
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  }
+});
 
 function App() {
   const [showGame, setShowGame] = useState(false);
