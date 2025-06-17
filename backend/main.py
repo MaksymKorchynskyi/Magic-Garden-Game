@@ -17,12 +17,20 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Luthenia Game API")
 
+origins = [
+    "https://satisfied-growth-production.up.railway.app",
+    "https://magic-garden-game-production.up.railway.app",
+    "http://localhost:3000",
+    "http://localhost:8080"
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "https://satisfied-growth-production.up.railway.app/"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"]
 )
 
 # Mock database
@@ -172,6 +180,10 @@ def check_level_up(user: dict, exp_gained: int) -> bool:
 def validate_wallet_address(address: str) -> bool:
     return len(address) >= 12 and address.isalnum()
 
+@app.options("/api/{path:path}")
+async def options_handler():
+    return JSONResponse(status_code=200)
+    
 # API endpoints
 @app.post("/api/register", response_model=UserResponse)
 async def register_user(user_data: UserCreate):
