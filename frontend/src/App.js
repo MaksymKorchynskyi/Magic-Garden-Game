@@ -11,7 +11,7 @@ import defaultAvatar from './assets/images/avatar_default.png';
 
 const API_BASE_URL = window.location.hostname === 'localhost' 
   ? 'http://localhost:8000' 
-  : 'https://magic-garden-game-production.up.railway.app/'; 
+  : 'https://magic-garden-game-production.up.railway.app'; 
 
 function App() {
   const [showGame, setShowGame] = useState(false);
