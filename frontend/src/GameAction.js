@@ -8,6 +8,7 @@ import level_image from './assets/images/lvl_image.png';
 import exp_image from './assets/images/exp_image.png';
 import ShopMagic from './ShopMagic';
 import MybackgroundImage from './assets/images/new_background_v2.png';
+import defaultAvatar from './assets/images/avatar_default.png';
 
 const GameAction = ({ userData, onBack, onUpdateUser, apiBaseUrl }) => {
     const [selectedPlant, setSelectedPlant] = useState(null);
@@ -24,6 +25,7 @@ const GameAction = ({ userData, onBack, onUpdateUser, apiBaseUrl }) => {
     const [activeView, setActiveView] = useState('garden');
     const [showProfile, setShowProfile] = useState(false);
     const [activeAnimation, setActiveAnimation] = useState(null);
+    const [showInventory, setShowInventory] = useState(false);
 
     const fetchInitialData = useCallback(async () => {
         setIsLoading(true);
@@ -207,6 +209,10 @@ const GameAction = ({ userData, onBack, onUpdateUser, apiBaseUrl }) => {
         setShowProfile(prev => !prev);
     }, []);
 
+    const toggleInventory = useCallback(() => {
+        setShowInventory(prev => !prev);
+    }, []);
+
     if (isLoading) {
         return (
             <div style={styles.loadingOverlay}>
@@ -239,7 +245,12 @@ const GameAction = ({ userData, onBack, onUpdateUser, apiBaseUrl }) => {
                 <header style={styles.header}>
                     <h1 style={styles.title} onClick={onBack}>Luthenia</h1>
                     <div style={styles.profileButton} onClick={toggleProfile}>
-                        {userData.username}
+                        <img 
+                            src={userData.avatar || defaultAvatar} 
+                            alt="Avatar" 
+                            style={styles.userAvatar}
+                        />
+                        <span style={styles.usernameText}>{userData.username}</span>
                     </div>
                 </header>
 
@@ -311,24 +322,6 @@ const GameAction = ({ userData, onBack, onUpdateUser, apiBaseUrl }) => {
                                     />
                                 ))}
                             </div>
-                            
-                            {selectedPlant && (
-                                <div style={styles.selectedPlantIndicator}>
-                                    <p>SELECTED: {selectedPlant.name}</p>
-                                    <img 
-                                        src={`${apiBaseUrl}${selectedPlant.image}`} 
-                                        alt={selectedPlant.name} 
-                                        style={styles.selectedPlantImage} 
-                                    />
-                                    <button 
-                                        style={styles.cancelSelectionButton}
-                                        onClick={() => setSelectedPlant(null)}
-                                        disabled={isLoading}
-                                    >
-                                        CANCEL
-                                    </button>
-                                </div>
-                            )}
                         </div>
                     )}
 
@@ -343,48 +336,53 @@ const GameAction = ({ userData, onBack, onUpdateUser, apiBaseUrl }) => {
                             />
                         </div>
                     )}
+                </main>
 
-                    {activeView === 'inventory' && (
-                        <div style={styles.modalOverlay}>
-                            <div style={styles.inventoryModal}>
-                                <div style={styles.inventoryHeader}>
-                                    <h3 style={styles.inventoryTitle}>YOUR INVENTORY</h3>
-                                    <button 
-                                        style={styles.closeModalButton}
-                                        onClick={() => setActiveView('garden')}
-                                    >
-                                        ×
-                                    </button>
-                                </div>
-                                {inventory.length === 0 ? (
-                                    <p style={styles.emptyInventory}>Your inventory is empty. Buy plants in the shop!</p>
-                                ) : (
-                                    <div style={styles.inventoryGrid}>
-                                        {inventory.map(plant => (
-                                            <div key={plant.uniqueId} style={styles.inventoryItem}>
-                                                <img 
-                                                    src={`${apiBaseUrl}${plant.image}`} 
-                                                    alt={plant.name} 
-                                                    style={styles.inventoryImage} 
-                                                />
-                                                <h4 style={styles.plantName}>{plant.name}</h4>
-                                                <button 
-                                                    style={selectedPlant?.uniqueId === plant.uniqueId ? 
-                                                        styles.selectedPlantButton : 
-                                                        styles.selectPlantButton}
-                                                    onClick={() => setSelectedPlant(plant)}
-                                                    disabled={isLoading}
-                                                >
-                                                    {selectedPlant?.uniqueId === plant.uniqueId ? 'SELECTED' : 'SELECT'}
-                                                </button>
-                                            </div>
-                                        ))}
+                {/* Inventory as bottom drawer */}
+                <div style={{
+                    ...styles.inventoryDrawer,
+                    transform: showInventory ? 'translateY(0)' : 'translateY(100%)'
+                }}>
+                    <div style={styles.inventoryTab} onClick={toggleInventory}>
+                        <div style={styles.tabHandle}></div>
+                        {inventory.length > 0 && (
+                            <div style={styles.inventoryCounter}>
+                                {inventory.length}
+                            </div>
+                        )}
+                    </div>
+                    <div style={styles.inventoryHeader}>
+                        <h3 style={styles.inventoryTitle}>YOUR INVENTORY</h3>
+                    </div>
+                    {inventory.length === 0 ? (
+                        <p style={styles.emptyInventory}>Your inventory is empty. Buy plants in the shop!</p>
+                    ) : (
+                        <div style={styles.inventoryScroll}>
+                            <div style={styles.inventoryGrid}>
+                                {inventory.map(plant => (
+                                    <div key={plant.uniqueId} style={styles.inventoryItem}>
+                                        <div style={styles.inventoryImageContainer}>
+                                            <img 
+                                                src={`${apiBaseUrl}${plant.image}`} 
+                                                alt={plant.name} 
+                                                style={styles.inventoryImage} 
+                                            />
+                                        </div>
+                                        <button 
+                                            style={selectedPlant?.uniqueId === plant.uniqueId ? 
+                                                styles.selectedPlantButton : 
+                                                styles.selectPlantButton}
+                                            onClick={() => setSelectedPlant(plant)}
+                                            disabled={isLoading}
+                                        >
+                                            {selectedPlant?.uniqueId === plant.uniqueId ? 'SELECTED' : 'SELECT'}
+                                        </button>
                                     </div>
-                                )}
+                                ))}
                             </div>
                         </div>
                     )}
-                </main>
+                </div>
 
                 <div style={styles.navButtons}>
                     <button 
@@ -393,13 +391,6 @@ const GameAction = ({ userData, onBack, onUpdateUser, apiBaseUrl }) => {
                         disabled={isLoading}
                     >
                         SHOP
-                    </button>
-                    <button 
-                        style={styles.inventoryNavButton}
-                        onClick={() => setActiveView('inventory')}
-                        disabled={isLoading}
-                    >
-                        INVENTORY
                     </button>
                 </div>
                 
@@ -439,11 +430,14 @@ const GardenBed = ({ bed, selectedPlant, onPlantSeed, onUnlockBed, onHarvest, ge
                                 style={styles.plantImage} 
                             />
                             <div style={styles.progressBarContainer}>
-                                <progress 
-                                    value={bed.progress} 
-                                    max="100"
-                                    style={styles.progressBar}
-                                ></progress>
+                                <div style={styles.progressBarTrack}>
+                                    <div 
+                                        style={{
+                                            ...styles.progressBarFill,
+                                            width: `${bed.progress}%`
+                                        }}
+                                    ></div>
+                                </div>
                             </div>
                             <button 
                                 style={styles.harvestButton}
@@ -462,7 +456,7 @@ const GardenBed = ({ bed, selectedPlant, onPlantSeed, onUnlockBed, onHarvest, ge
                                     onClick={() => onPlantSeed(bed.id)}
                                     disabled={isLoading}
                                 >
-                                    PLANT {selectedPlant.name.toUpperCase()}
+                                    PLANT
                                 </button>
                             )}
                         </>
@@ -524,16 +518,31 @@ const styles = {
     profileButton: {
         backgroundColor: 'rgba(123, 61, 255, 0.3)',
         color: 'white',
-        padding: '10px 20px',
+        padding: '8px 15px',
         borderRadius: '20px',
         fontSize: '16px',
         fontWeight: 'bold',
         border: '2px solid #7b3dff',
         cursor: 'pointer',
         transition: 'all 0.3s ease',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
         ':hover': {
             backgroundColor: 'rgba(123, 61, 255, 0.5)',
         }
+    },
+    userAvatar: {
+        width: '30px',
+        height: '30px',
+        borderRadius: '50%',
+        objectFit: 'cover',
+    },
+    usernameText: {
+        maxWidth: '100px',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
     },
     statsBar: {
         position: 'fixed',
@@ -583,12 +592,12 @@ const styles = {
         width: '100%',
     },
     gardenBedContainer: {
-        width: '30vmin',
-        height: '30vmin',
-        minWidth: '150px',
-        minHeight: '150px',
-        maxWidth: '200px',
-        maxHeight: '200px',
+        width: '25vmin',
+        height: '25vmin',
+        minWidth: '120px',
+        minHeight: '120px',
+        maxWidth: '180px',
+        maxHeight: '180px',
         position: 'relative',
     },
     lockedBed: {
@@ -654,19 +663,21 @@ const styles = {
     },
     progressBarContainer: {
         width: '90%',
+        margin: '10px 0',
+    },
+    progressBarTrack: {
+        width: '100%',
         height: '10px',
         backgroundColor: 'rgba(0, 0, 0, 0.3)',
         borderRadius: '5px',
-        margin: '10px 0',
         overflow: 'hidden',
     },
-    progressBar: {
-        width: '100%',
+    progressBarFill: {
         height: '100%',
         backgroundColor: '#7b3dff',
-        border: 'none',
         borderRadius: '5px',
         transition: 'width 0.5s ease',
+        boxShadow: '0 0 5px rgba(123, 61, 255, 0.8)',
     },
     harvestButton: {
         position: 'absolute',
@@ -704,41 +715,11 @@ const styles = {
         textTransform: 'uppercase',
         whiteSpace: 'nowrap',
     },
-    selectedPlantIndicator: {
-        position: 'fixed',
-        bottom: '60px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        padding: '15px',
-        borderRadius: '10px',
-        textAlign: 'center',
-        color: 'white',
-        fontSize: '14px',
-        zIndex: 10,
-    },
-    selectedPlantImage: {
-        width: '60px',
-        height: '60px',
-        objectFit: 'contain',
-        margin: '10px 0',
-    },
-    cancelSelectionButton: {
-        backgroundColor: 'transparent',
-        color: 'white',
-        border: '1px solid white',
-        borderRadius: '8px',
-        padding: '8px 12px',
-        fontSize: '12px',
-        fontWeight: 'bold',
-        cursor: 'pointer',
-        textTransform: 'uppercase',
-    },
     notification: {
         position: 'fixed',
-        top: '50%',
+        top: '20px',
         left: '50%',
-        transform: 'translate(-50%, -50%)',
+        transform: 'translateX(-50%)',
         padding: '15px 25px',
         borderRadius: '10px',
         color: 'white',
@@ -746,6 +727,9 @@ const styles = {
         fontWeight: 'bold',
         zIndex: 1000,
         animation: 'fadeInOut 3s ease-in-out',
+        width: '90%',
+        maxWidth: '400px',
+        textAlign: 'center',
     },
     buyNotification: {
         backgroundColor: 'rgba(123, 61, 255, 0.9)',
@@ -775,90 +759,150 @@ const styles = {
         alignItems: 'center',
         zIndex: 100,
     },
-    inventoryModal: {
+    inventoryDrawer: {
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
         backgroundColor: 'rgba(30, 15, 60, 0.95)',
-        borderRadius: '15px',
-        padding: '20px',
-        width: '90%',
-        maxWidth: '800px',
-        maxHeight: '80vh',
-        overflowY: 'auto',
+        borderTopLeftRadius: '15px',
+        borderTopRightRadius: '15px',
+        padding: '15px 15px 0 15px',
+        zIndex: 50,
+        transition: 'transform 0.3s ease',
+        maxHeight: '50vh',
+        display: 'flex',
+        flexDirection: 'column',
+        boxShadow: '0 -5px 15px rgba(0, 0, 0, 0.3)',
+    },
+    inventoryTab: {
+        position: 'absolute',
+        top: '-25px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: '120px',
+        height: '25px',
+        backgroundColor: 'rgba(123, 61, 255, 0.8)',
+        borderTopLeftRadius: '13px',
+        borderTopRightRadius: '13px',
+        cursor: 'pointer',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        paddingTop: '5px',
+    },
+    tabHandle: {
+        width: '40px',
+        height: '4px',
+        backgroundColor: 'rgba(255, 255, 255, 0.6)',
+        borderRadius: '2px',
+    },
+    inventoryCounter: {
+        position: 'absolute',
+        top: '-10px',
+        right: '-10px',
+        backgroundColor: '#ff3d3d',
+        color: 'white',
+        borderRadius: '50%',
+        width: '20px',
+        height: '20px',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontSize: '12px',
+        fontWeight: 'bold',
     },
     inventoryHeader: {
         display: 'flex',
-        justifyContent: 'space-between',
+        justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: '20px',
+        marginBottom: '15px',
     },
     inventoryTitle: {
         color: '#ffffff',
         margin: 0,
-        fontSize: '20px',
+        fontSize: '18px',
         textTransform: 'uppercase',
     },
-    closeModalButton: {
-        backgroundColor: 'transparent',
+    inventoryScroll: {
+        flex: 1,
+        overflowY: 'auto',
+        paddingBottom: '15px',
+        scrollbarWidth: 'thin',
+        scrollbarColor: '#7b3dff rgba(0, 0, 0, 0.3)',
+        '::-webkit-scrollbar': {
+            width: '8px',
+        },
+        '::-webkit-scrollbar-track': {
+            background: 'rgba(0, 0, 0, 0.3)',
+            borderRadius: '4px',
+        },
+        '::-webkit-scrollbar-thumb': {
+            backgroundColor: '#7b3dff',
+            borderRadius: '4px',
+        },
+    },
+    inventoryGrid: {
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))',
+        gap: '10px',
+        padding: '5px',
+    },
+    inventoryItem: {
+        backgroundColor: 'rgba(123, 61, 255, 0.1)',
+        border: '1px solid #7b3dff',
+        borderRadius: '8px',
+        padding: '10px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+    },
+    inventoryImageContainer: {
+        width: '60px',
+        height: '60px',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: '8px',
+    },
+    inventoryImage: {
+        maxWidth: '100%',
+        maxHeight: '100%',
+        objectFit: 'contain',
+    },
+    selectPlantButton: {
+        backgroundColor: 'rgba(123, 61, 255, 0.5)',
         color: 'white',
         border: 'none',
-        fontSize: '24px',
+        borderRadius: '6px',
+        padding: '6px 8px',
+        fontSize: '10px',
+        fontWeight: 'bold',
         cursor: 'pointer',
-        padding: '0 10px',
+        textTransform: 'uppercase',
+        width: '100%',
+        transition: 'all 0.2s ease',
+        ':hover': {
+            backgroundColor: 'rgba(123, 61, 255, 0.7)',
+        },
+    },
+    selectedPlantButton: {
+        backgroundColor: '#4CAF50',
+        color: 'white',
+        border: 'none',
+        borderRadius: '6px',
+        padding: '6px 8px',
+        fontSize: '10px',
+        fontWeight: 'bold',
+        cursor: 'default',
+        textTransform: 'uppercase',
+        width: '100%',
     },
     emptyInventory: {
         textAlign: 'center',
         color: 'rgba(255, 255, 255, 0.7)',
         fontSize: '16px',
         padding: '20px',
-    },
-    inventoryGrid: {
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
-        gap: '15px',
-    },
-    inventoryItem: {
-        backgroundColor: 'rgba(123, 61, 255, 0.1)',
-        border: '1px solid #7b3dff',
-        borderRadius: '10px',
-        padding: '15px',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-    },
-    inventoryImage: {
-        width: '60px',
-        height: '60px',
-        objectFit: 'contain',
-        marginBottom: '10px',
-    },
-    plantName: {
-        color: '#ffffff',
-        fontSize: '14px',
-        margin: '0 0 10px 0',
-        textAlign: 'center',
-    },
-    selectPlantButton: {
-        backgroundColor: '#7b3dff',
-        color: 'white',
-        border: 'none',
-        borderRadius: '8px',
-        padding: '8px 12px',
-        fontSize: '12px',
-        fontWeight: 'bold',
-        cursor: 'pointer',
-        textTransform: 'uppercase',
-        width: '100%',
-    },
-    selectedPlantButton: {
-        backgroundColor: '#4CAF50',
-        color: 'white',
-        border: 'none',
-        borderRadius: '8px',
-        padding: '8px 12px',
-        fontSize: '12px',
-        fontWeight: 'bold',
-        cursor: 'default',
-        textTransform: 'uppercase',
-        width: '100%',
     },
     profileModal: {
         position: 'fixed',
@@ -932,30 +976,9 @@ const styles = {
             cursor: 'not-allowed',
         },
     },
-    inventoryNavButton: {
-        backgroundColor: 'rgba(186, 85, 211, 0.8)',
-        color: 'white',
-        border: 'none',
-        borderRadius: '50%',
-        width: '60px',
-        height: '60px',
-        fontSize: '14px',
-        fontWeight: 'bold',
-        cursor: 'pointer',
-        textTransform: 'uppercase',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        textAlign: 'center',
-        boxShadow: '0 4px 10px rgba(0, 0, 0, 0.3)',
-        ':disabled': {
-            opacity: 0.6,
-            cursor: 'not-allowed',
-        },
-    },
     backButton: {
         position: 'fixed',
-        bottom: '20px',
+        bottom: '40px',
         left: '20px',
         backgroundColor: 'rgba(0, 0, 0, 0.7)',
         color: 'white',
@@ -1003,10 +1026,10 @@ const styles = {
         '100%': { transform: 'rotate(360deg)' }
     },
     '@keyframes fadeInOut': {
-        '0%': { opacity: 0, transform: 'translate(-50%, -60%)' },
-        '20%': { opacity: 1, transform: 'translate(-50%, -50%)' },
-        '80%': { opacity: 1, transform: 'translate(-50%, -50%)' },
-        '100%': { opacity: 0, transform: 'translate(-50%, -40%)' },
+        '0%': { opacity: 0, transform: 'translateX(-50%) translateY(-20px)' },
+        '20%': { opacity: 1, transform: 'translateX(-50%) translateY(0)' },
+        '80%': { opacity: 1, transform: 'translateX(-50%) translateY(0)' },
+        '100%': { opacity: 0, transform: 'translateX(-50%) translateY(-20px)' },
     }
 };
 

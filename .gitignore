@@ -27,3 +27,5 @@ build/
 
 # Ignore any .env files
 *.env
+
+bot.py
